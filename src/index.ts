@@ -4,7 +4,9 @@ import path from 'path';
 import {
   ASSISTANT_NAME,
   IDLE_TIMEOUT,
+  LLM_PROVIDER,
   MAIN_GROUP_FOLDER,
+  OLLAMA_MODEL,
   POLL_INTERVAL,
   TRIGGER_PATTERN,
 } from './config.js';
@@ -32,6 +34,7 @@ import {
   storeMessage,
 } from './db.js';
 import { GroupQueue } from './group-queue.js';
+import { runOllamaAgent } from './ollama-runner.js';
 import { resolveGroupFolderPath } from './group-folder.js';
 import { startIpcWatcher } from './ipc.js';
 import { findChannel, formatMessages, formatOutbound } from './router.js';
@@ -226,12 +229,35 @@ async function processGroupMessages(chatJid: string): Promise<boolean> {
   return true;
 }
 
+function resolveGroupLlmProvider(group: RegisteredGroup): 'claude' | 'ollama' {
+  return group.containerConfig?.llmProvider ?? LLM_PROVIDER;
+}
+
 async function runAgent(
   group: RegisteredGroup,
   prompt: string,
   chatJid: string,
   onOutput?: (output: ContainerOutput) => Promise<void>,
 ): Promise<'success' | 'error'> {
+  const provider = resolveGroupLlmProvider(group);
+
+  if (provider === 'ollama') {
+    const model = OLLAMA_MODEL;
+    logger.info({ group: group.name, model }, 'Running Ollama agent');
+    try {
+      const output = await runOllamaAgent(group, prompt, model, onOutput);
+      if (output.status === 'error') {
+        logger.error({ group: group.name, error: output.error }, 'Ollama agent error');
+        return 'error';
+      }
+      return 'success';
+    } catch (err) {
+      logger.error({ group: group.name, err }, 'Ollama agent error');
+      return 'error';
+    }
+  }
+
+  // Default: Claude container agent
   const isMain = group.folder === MAIN_GROUP_FOLDER;
   const sessionId = sessions[group.folder];
 

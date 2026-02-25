@@ -9,12 +9,23 @@ import { readEnvFile } from './env.js';
 const envConfig = readEnvFile([
   'ASSISTANT_NAME',
   'ASSISTANT_HAS_OWN_NUMBER',
+  'LLM_PROVIDER',
+  'OLLAMA_BASE_URL',
+  'OLLAMA_MODEL',
 ]);
 
 export const ASSISTANT_NAME =
   process.env.ASSISTANT_NAME || envConfig.ASSISTANT_NAME || 'Andy';
 export const ASSISTANT_HAS_OWN_NUMBER =
   (process.env.ASSISTANT_HAS_OWN_NUMBER || envConfig.ASSISTANT_HAS_OWN_NUMBER) === 'true';
+
+// LLM provider selection: 'claude' (default, container-based) or 'ollama' (local)
+export const LLM_PROVIDER =
+  (process.env.LLM_PROVIDER || envConfig.LLM_PROVIDER || 'claude') as 'claude' | 'ollama';
+export const OLLAMA_BASE_URL =
+  process.env.OLLAMA_BASE_URL || envConfig.OLLAMA_BASE_URL || 'http://localhost:11434';
+export const OLLAMA_MODEL =
+  process.env.OLLAMA_MODEL || envConfig.OLLAMA_MODEL || 'qwen3:8b-q4_K_M';
 export const POLL_INTERVAL = 2000;
 export const SCHEDULER_POLL_INTERVAL = 60000;
 
