@@ -356,6 +356,8 @@ async function startMessageLoop(): Promise<void> {
         );
         if (killMessage) {
           logger.warn({ msgId: killMessage.id }, 'Killswitch triggered');
+          lastTimestamp = newTimestamp;
+          saveState();
           const killChannel = findChannel(channels, killMessage.chat_jid);
           if (killChannel) {
             await killChannel.sendMessage(killMessage.chat_jid, 'Killswitch activated. Shutting down.');
