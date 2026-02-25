@@ -1,3 +1,4 @@
+import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -348,6 +349,25 @@ async function startMessageLoop(): Promise<void> {
 
       if (messages.length > 0) {
         logger.info({ count: messages.length }, 'New messages');
+
+        // Killswitch: shut down everything if any non-bot message contains the word
+        const killMessage = messages.find(
+          (m) => !m.is_bot_message && /\bagamemnon\b/i.test(m.content),
+        );
+        if (killMessage) {
+          logger.warn({ msgId: killMessage.id }, 'Killswitch triggered');
+          const killChannel = findChannel(channels, killMessage.chat_jid);
+          if (killChannel) {
+            await killChannel.sendMessage(killMessage.chat_jid, 'Killswitch activated. Shutting down.');
+          }
+          spawn('bash', ['-c', 'sleep 1 && systemctl --user stop nanoclaw'], {
+            detached: true,
+            stdio: 'ignore',
+          }).unref();
+          await queue.shutdown(3000);
+          for (const ch of channels) await ch.disconnect();
+          process.exit(0);
+        }
 
         // Advance the "seen" cursor for all messages immediately
         lastTimestamp = newTimestamp;
