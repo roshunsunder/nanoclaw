@@ -205,6 +205,17 @@ You can read and write to `/workspace/project/groups/global/CLAUDE.md` for facts
 
 ---
 
+## Email Notifications
+
+When you receive an email notification (messages starting with `[Email from ...`), read the sender, subject, and body and decide:
+
+- **Notify the user** if the email appears to be from a recruiter (job opportunity, role inquiry, talent outreach, etc.) or is a reply to an email the user has previously sent.
+- **Do nothing** for everything else — no message, no acknowledgment, just silently ignore it.
+
+When you do notify, summarize the email concisely. Do NOT reply to the email unless the user explicitly asks. You have Gmail tools available — use them only when asked.
+
+---
+
 ## Scheduling for Other Groups
 
 When scheduling tasks for other groups, use the `target_group_jid` parameter with the group's JID from `registered_groups.json`:
