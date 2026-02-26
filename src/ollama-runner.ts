@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { ASSISTANT_NAME, DATA_DIR, OLLAMA_BASE_URL, OLLAMA_MODEL } from './config.js';
+import { ASSISTANT_NAME, DATA_DIR, OLLAMA_BASE_URL, OLLAMA_MODEL, OLLAMA_NUM_CTX } from './config.js';
 import { ContainerOutput } from './container-runner.js';
 import { logger } from './logger.js';
 import { RegisteredGroup } from './types.js';
@@ -20,7 +20,9 @@ interface OllamaChatRequest {
   model: string;
   messages: OllamaMessage[];
   stream: boolean;
+  think?: boolean;
   options?: {
+    num_ctx?: number;
     temperature?: number;
     num_predict?: number;
   };
@@ -73,6 +75,8 @@ async function callOllamaChat(
     model,
     messages,
     stream: false,
+    think: true,
+    options: { num_ctx: OLLAMA_NUM_CTX },
   };
 
   let response: Response;

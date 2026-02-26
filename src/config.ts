@@ -12,6 +12,7 @@ const envConfig = readEnvFile([
   'LLM_PROVIDER',
   'OLLAMA_BASE_URL',
   'OLLAMA_MODEL',
+  'OLLAMA_NUM_CTX',
 ]);
 
 export const ASSISTANT_NAME =
@@ -26,6 +27,10 @@ export const OLLAMA_BASE_URL =
   process.env.OLLAMA_BASE_URL || envConfig.OLLAMA_BASE_URL || 'http://localhost:11434';
 export const OLLAMA_MODEL =
   process.env.OLLAMA_MODEL || envConfig.OLLAMA_MODEL || 'qwen3:8b-q4_K_M';
+export const OLLAMA_NUM_CTX = parseInt(
+  process.env.OLLAMA_NUM_CTX || envConfig.OLLAMA_NUM_CTX || '40000',
+  10,
+);
 export const POLL_INTERVAL = 2000;
 export const SCHEDULER_POLL_INTERVAL = 60000;
 
