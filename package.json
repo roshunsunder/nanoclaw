@@ -14,7 +14,9 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "setup": "tsx setup/index.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "reset": "node scripts/reset.js",
+    "reset:history": "node scripts/reset.js --history-only"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
