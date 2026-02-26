@@ -350,6 +350,9 @@ async function startMessageLoop(): Promise<void> {
         if (killMessage) {
           logger.warn({ msgId: killMessage.id }, 'Killswitch triggered');
           lastTimestamp = newTimestamp;
+          // Advance agent cursor so the killswitch message isn't re-processed
+          // by recoverPendingMessages if the service restarts
+          lastAgentTimestamp[killMessage.chat_jid] = newTimestamp;
           saveState();
           const killChannel = findChannel(channels, killMessage.chat_jid);
           if (killChannel) {
