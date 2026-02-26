@@ -177,7 +177,7 @@ export class GmailChannel implements Channel {
   // --- Private ---
 
   private buildQuery(): string {
-    return 'is:unread category:primary';
+    return 'is:unread in:inbox -category:promotions -category:social -category:updates -category:forums';
   }
 
   private async pollForMessages(): Promise<void> {

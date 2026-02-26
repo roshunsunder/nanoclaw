@@ -5,6 +5,7 @@ import path from 'path';
 import {
   ASSISTANT_NAME,
   IDLE_TIMEOUT,
+  LLM_PROVIDER,
   MAIN_GROUP_FOLDER,
   POLL_INTERVAL,
   TRIGGER_PATTERN,
@@ -18,6 +19,7 @@ import {
   writeTasksSnapshot,
 } from './container-runner.js';
 import { cleanupOrphans, ensureContainerRuntimeRunning } from './container-runtime.js';
+import { runOllamaAgent } from './ollama-runner.js';
 import {
   getAllChats,
   getAllRegisteredGroups,
@@ -261,6 +263,22 @@ async function runAgent(
     availableGroups,
     new Set(Object.keys(registeredGroups)),
   );
+
+  const provider = group.containerConfig?.llmProvider ?? LLM_PROVIDER;
+
+  if (provider === 'ollama') {
+    try {
+      const output = await runOllamaAgent(group, prompt, undefined, onOutput);
+      if (output.status === 'error') {
+        logger.error({ group: group.name, error: output.error }, 'Ollama agent error');
+        return 'error';
+      }
+      return 'success';
+    } catch (err) {
+      logger.error({ group: group.name, err }, 'Ollama agent error');
+      return 'error';
+    }
+  }
 
   // Wrap onOutput to track session ID from streamed results
   const wrappedOnOutput = onOutput
